@@ -19,19 +19,18 @@ services:
       - ./music:/music
     restart: unless-stopped
 
-
   queue-api:
     build: ./queue-api
+    depends_on:
+      - liquidsoap
     environment:
       - TZ=${TZ}
       - LIQ_HOST=liquidsoap
       - LIQ_PORT=1234
       - LIQ_PASS=${LIQ_TELNET_PASSWORD}
-      - YT_COOKIES=/cookies.txt
+      - YT_COOKIES=/cookies.txt           # path INSIDE container
     volumes:
-      - ./cookies/cookies.txt:/cookies.txt:ro
+      - ./cookies/cookies.txt:/cookies.txt:ro  # bind a FILE, not a folder
     ports:
       - "${QUEUE_PORT:-8080}:8080"
-    depends_on:
-      - liquidsoap
     restart: unless-stopped
