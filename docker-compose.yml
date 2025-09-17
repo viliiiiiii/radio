@@ -27,9 +27,9 @@ services:
       - LIQ_HOST=liquidsoap
       - LIQ_PORT=1234
       - LIQ_PASS=${LIQ_TELNET_PASSWORD}
-      - YT_COOKIES=/cookies/cookies.txt
+      - YT_COOKIES=/cookies.txt
     volumes:
-      - ./cookies/cookies.txt:/cookies/cookies.txt:ro
+      - ./cookies/cookies.txt:/cookies.txt:ro
     ports:
       - "${QUEUE_PORT:-8080}:8080"
     depends_on:

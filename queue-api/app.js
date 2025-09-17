@@ -54,8 +54,8 @@ function getDirectAudio(url) {
 
     // Optional: pass cookies to bypass YouTube bot/age checks
     if (process.env.YT_COOKIES) {
-      args.push("--cookies", process.env.YT_COOKIES);
-    }
+  args.push("--cookies", process.env.YT_COOKIES);
+}
 
     // Extra flags that help in some cases:
     args.push(
