@@ -48,27 +48,35 @@ function liqCommand(cmd) {
   });
 }
 
-// ---- helper: resolve a direct audio URL (YouTube -> direct URL) without downloading
 function getDirectAudio(url) {
   return new Promise((resolve, reject) => {
-    const args = ["-g", "-f", "bestaudio", url];
+    const args = ["-g", "-f", "bestaudio"];
+
+    // Optional: pass cookies to bypass YouTube bot/age checks
+    if (process.env.YT_COOKIES) {
+      args.push("--cookies", process.env.YT_COOKIES);
+    }
+
+    // Extra flags that help in some cases:
+    args.push(
+      "--no-playlist",
+      "--force-ipv4",
+      "--geo-bypass",
+      "--extractor-args", "youtube:player_client=android" // avoids some web checks
+    );
+
+    args.push(url);
+
     const proc = spawn("yt-dlp", args);
-
-    let out = "";
-    let err = "";
-
+    let out = "", err = "";
     proc.stdout.on("data", d => (out += d.toString()));
     proc.stderr.on("data", d => (err += d.toString()));
-
     proc.on("close", code => {
       if (code === 0) {
-        // yt-dlp may output multiple lines; take the last one
         const line = out.trim().split("\n").pop();
-        if (!line) return reject(new Error("yt-dlp returned no URL"));
-        resolve(line.trim());
-      } else {
-        reject(new Error(err || `yt-dlp exited with code ${code}`));
+        return line ? resolve(line.trim()) : reject(new Error("yt-dlp returned no URL"));
       }
+      reject(new Error(err || `yt-dlp exited with code ${code}`));
     });
   });
 }
