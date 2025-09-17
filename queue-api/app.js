@@ -50,20 +50,21 @@ function liqCommand(cmd) {
 
 function getDirectAudio(url) {
   return new Promise((resolve, reject) => {
-    const args = ["-g", "-f", "bestaudio"];
+    // Prefer an audio-only format that's easy for Liquidsoap to play
+    // m4a is ideal; then any bestaudio; then best as last resort.
+    const args = ["-g", "-f", "bestaudio[ext=m4a]/bestaudio/best"];
 
-    // Optional: pass cookies to bypass YouTube bot/age checks
+    // Always good hygiene:
+    args.push("--no-playlist", "--force-ipv4", "--geo-bypass");
+
+    // If we have cookies, use the *web* client (cookies work here).
+    // If we don't have cookies, use android client to dodge some web checks.
     if (process.env.YT_COOKIES) {
-  args.push("--cookies", process.env.YT_COOKIES);
-}
-
-    // Extra flags that help in some cases:
-    args.push(
-      "--no-playlist",
-      "--force-ipv4",
-      "--geo-bypass",
-      "--extractor-args", "youtube:player_client=android" // avoids some web checks
-    );
+      args.push("--cookies", process.env.YT_COOKIES);
+      args.push("--extractor-args", "youtube:player_client=web");
+    } else {
+      args.push("--extractor-args", "youtube:player_client=android");
+    }
 
     args.push(url);
 
@@ -80,6 +81,7 @@ function getDirectAudio(url) {
     });
   });
 }
+
 
 // ---- API: enqueue a URL (YouTube or direct MP3/AAC/…) to Liquidsoap's request.queue
 app.post("/enqueue", async (req, res) => {
