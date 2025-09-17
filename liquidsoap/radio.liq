@@ -1,10 +1,10 @@
 # Logging
 set("log.level", 3)
 
-# Set the server (telnet/HTTP) control password first
-server.password("gZ7rP2mXq9Vt4LkS5hBw0QeY")
+# Set the control password via settings
+set("server.password", "gZ7rP2mXq9Vt4LkS5hBw0QeY")
 
-# Then enable the telnet server on port 1234 (no password argument here)
+# Start the telnet server on port 1234 (no password arg here)
 server.telnet(port=1234)
 
 
