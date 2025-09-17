@@ -1,15 +1,12 @@
 services:
   icecast:
-    image: linuxserver/icecast
+    image: lscr.io/linuxserver/icecast2
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=${TZ}
-      - ICECAST_SOURCE_PASSWORD=${ICECAST_SOURCE_PASSWORD}
-      - ICECAST_ADMIN_PASSWORD=${ICECAST_ADMIN_PASSWORD}
-      - ICECAST_RELAY_PASSWORD=${ICECAST_RELAY_PASSWORD}
     volumes:
-      - ./icecast/icecast.xml:/config/icecast.xml:ro
+      - ./icecast/icecast.xml:/etc/icecast2/icecast.xml:ro
     ports:
       - "${ICECAST_PORT:-8000}:8000"
     restart: unless-stopped
