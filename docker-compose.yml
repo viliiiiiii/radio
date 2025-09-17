@@ -1,0 +1,50 @@
+version: "3.8"
+services:
+icecast:
+image: linuxserver/icecast
+container_name: icecast
+environment:
+- PUID=1000
+- PGID=1000
+- TZ=${TZ}
+- ICECAST_SOURCE_PASSWORD=${ICECAST_SOURCE_PASSWORD}
+- ICECAST_ADMIN_PASSWORD=${ICECAST_ADMIN_PASSWORD}
+- ICECAST_RELAY_PASSWORD=${ICECAST_RELAY_PASSWORD}
+volumes:
+- ./icecast/icecast.xml:/config/icecast.xml
+ports:
+- "8000:8000"
+restart: unless-stopped
+
+
+liquidsoap:
+image: savonet/liquidsoap:2.2.5
+container_name: liquidsoap
+environment:
+- TZ=${TZ}
+- LIQ_TELNET_PASSWORD=${LIQ_TELNET_PASSWORD}
+- ICECAST_SOURCE_PASSWORD=${ICECAST_SOURCE_PASSWORD}
+- STATION_MOUNT=${STATION_MOUNT}
+- STATION_NAME=${STATION_NAME}
+volumes:
+- ./liquidsoap/radio.liq:/radio.liq
+- ./music:/music
+command: ["liquidsoap", "/radio.liq"]
+depends_on:
+- icecast
+restart: unless-stopped
+
+
+queue-api:
+build: ./queue-api
+container_name: queue-api
+environment:
+- TZ=${TZ}
+- LIQ_HOST=liquidsoap
+- LIQ_PORT=1234
+- LIQ_PASS=${LIQ_TELNET_PASSWORD}
+ports:
+- "8080:8080"
+depends_on:
+- liquidsoap
+restart: unless-stopped
