@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   icecast:
     image: linuxserver/icecast
@@ -17,7 +15,7 @@ services:
     restart: unless-stopped
 
   liquidsoap:
-    image: savonet/liquidsoap:2.2.5
+    image: savonet/liquidsoap:v2.3.1
     depends_on:
       - icecast
     environment:
@@ -44,7 +42,3 @@ services:
     ports:
       - "${QUEUE_PORT:-8080}:8080"
     restart: unless-stopped
-
-# Optional named volume if you prefer (switch ./music bind above to music:)
-# volumes:
-#   music:
