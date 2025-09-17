@@ -19,7 +19,7 @@ services:
       - ./music:/music
     restart: unless-stopped
 
-    queue-api:
+  queue-api:
     build: ./queue-api
     depends_on:
       - liquidsoap
@@ -28,9 +28,8 @@ services:
       - LIQ_HOST=liquidsoap
       - LIQ_PORT=1234
       - LIQ_PASS=${LIQ_TELNET_PASSWORD}
-      - YT_COOKIES=/cookies.txt      # path INSIDE the container
-      - YT_COOKIES_B64=${YT_COOKIES_B64}  # set in Dokploy
+      - YT_COOKIES=/cookies.txt          # path INSIDE the container
+      - YT_COOKIES_B64=${YT_COOKIES_B64} # set in Dokploy Environment
     ports:
       - "${QUEUE_PORT:-8080}:8080"
     restart: unless-stopped
-
