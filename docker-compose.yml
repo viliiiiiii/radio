@@ -1,10 +1,6 @@
 services:
   icecast:
-    image: lscr.io/linuxserver/icecast2
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=${TZ}
+    image: moul/icecast
     volumes:
       - ./icecast/icecast.xml:/etc/icecast2/icecast.xml:ro
     ports:
@@ -17,10 +13,6 @@ services:
       - icecast
     environment:
       - TZ=${TZ}
-      - LIQ_TELNET_PASSWORD=${LIQ_TELNET_PASSWORD}
-      - ICECAST_SOURCE_PASSWORD=${ICECAST_SOURCE_PASSWORD}
-      - STATION_MOUNT=${STATION_MOUNT}
-      - STATION_NAME=${STATION_NAME}
     command: ["liquidsoap", "/radio.liq"]
     volumes:
       - ./liquidsoap/radio.liq:/radio.liq:ro
