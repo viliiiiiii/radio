@@ -1,9 +1,4 @@
 const express = require("express");
-let out = "", err = "";
-proc.stdout.on("data", d => out += d.toString());
-proc.stderr.on("data", d => err += d.toString());
-proc.on("close", code => {
-if (code === 0) resolve(out.trim().split("\n").pop());
 else reject(new Error(err || `yt-dlp exited with ${code}`));
 });
 });

@@ -1,4 +1,6 @@
 <icecast>
+<limits>
+<clients>256</clients>
 <sources>4</sources>
 <queue-size>524288</queue-size>
 <client-timeout>30</client-timeout>
