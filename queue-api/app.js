@@ -16,16 +16,19 @@ function liqCommand(cmd) {
     const socket = new net.Socket();
     let buf = "";
     let authed = false;
+    let done = false;
+
+    const finish = (err) => {
+      if (done) return;
+      done = true;
+      if (err) reject(err);
+      else resolve(buf);
+    };
 
     socket.setEncoding("utf8");
-    socket.setTimeout(5000);
+    socket.setTimeout(5000, () => finish(new Error("Liquidsoap telnet timeout")));
 
-    socket.on("timeout", () => {
-      try { socket.destroy(); } catch {}
-      reject(new Error("Liquidsoap telnet timeout"));
-    });
-
-    socket.on("error", reject);
+    socket.on("error", (e) => finish(e));
 
     socket.connect(LIQ_PORT, LIQ_HOST, () => {
       socket.write(LIQ_PASS + "\n");
@@ -33,20 +36,27 @@ function liqCommand(cmd) {
 
     socket.on("data", chunk => {
       buf += chunk.toString();
-      // After first "OK" we are authenticated, then send the command
+
+      // Authentication success
       if (!authed && buf.includes("OK")) {
         authed = true;
+        // send the command, then quit to force the server to close the socket
         socket.write(cmd + "\n");
+        socket.write("quit\n");
       }
-      // Many Liquidsoap builds print END when done
-      if (buf.includes("END")) {
+
+      // Authentication failure
+      if (!authed && /Authentication failed|Bad password/i.test(buf)) {
+        finish(new Error("Liquidsoap telnet auth failed"));
         socket.end();
       }
     });
 
-    socket.on("end", () => resolve(buf));
+    socket.on("end", () => finish());
+    socket.on("close", () => finish());
   });
 }
+
 
 function getDirectAudio(url) {
   return new Promise((resolve, reject) => {

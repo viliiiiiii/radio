@@ -28,7 +28,7 @@ output.icecast(
   mount="/stream",                     # hardcode; no ${...} here
   name="My Dockploy Radio",            # hardcode; no ${...} here
   description="Dokploy radio",
-  url="http://radio.movana.com",
+  url="http://radio.movana.me",
   genre="various",
   stream
 )
