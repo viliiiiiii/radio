@@ -1,0 +1,37 @@
+services:
+  icecast:
+    image: icecast:2.4.4
+    container_name: radio-icecast
+    volumes:
+      - ./config/icecast.xml:/etc/icecast2/icecast.xml:ro
+    ports:
+      - "8000:8000"         # public stream
+    restart: unless-stopped
+
+  liquidsoap:
+    image: savonet/liquidsoap:2.2.6
+    container_name: radio-liquidsoap
+    depends_on:
+      - icecast
+    volumes:
+      - ./liquidsoap/radio.liq:/radio.liq:ro
+      - ./music:/music:ro   # read-only; managed by you
+    command: ["liquidsoap", "/radio.liq"]
+    restart: unless-stopped
+
+  web:
+    build: ./web
+    container_name: radio-web
+    depends_on:
+      - liquidsoap
+    environment:
+      # Liquidsoap telnet inside the docker network:
+      - LIQ_HOST=liquidsoap
+      - LIQ_PORT=1234
+      # Where the music lives (inside containers)
+      - MUSIC_DIR=/music
+    volumes:
+      - ./music:/music:ro
+    ports:
+      - "8080:8080"         # simple web UI
+    restart: unless-stopped
