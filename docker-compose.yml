@@ -33,7 +33,7 @@ services:
       - ./music:/music:ro
     restart: unless-stopped
 
-  queue-api:
+    queue-api:
     build: ./queue-api
     container_name: radio_queue_api
     depends_on:
@@ -41,9 +41,8 @@ services:
     environment:
       - LIQ_HOST=liquidsoap
       - LIQ_PORT=1234
-      - PORT=${QUEUE_PORT:-8080}
-      # If you need yt-dlp cookies later, mount a file inside this container and point to it:
-      # - YTDLP_COOKIES=/cookies/cookies.txt
+      - PORT=8080
     ports:
-      - "${QUEUE_PORT:-8080}:8080"
+      - "8080:8080"
     restart: unless-stopped
+
