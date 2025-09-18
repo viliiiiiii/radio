@@ -15,23 +15,24 @@ services:
     restart: unless-stopped
 
   liquidsoap:
-    image: savonet/liquidsoap:v2.3.1
-    container_name: radio_liquidsoap
-    depends_on:
-      - icecast
-    environment:
-      - STATION_MOUNT=${STATION_MOUNT:-/stream}
-      - STATION_NAME=${STATION_NAME:-My Radio}
-      - OUTPUT_BITRATE=${OUTPUT_BITRATE:-128}
-      - ICECAST_HOST=icecast
-      - ICECAST_PORT=8000
-      - ICECAST_PASSWORD=${ICECAST_SOURCE_PASSWORD}
-      - LIQ_TELNET_PORT=1234
-    command: ["liquidsoap","/radio.liq"]
-    volumes:
-      - ./radio.liq:/radio.liq:ro
-      - ./music:/music:ro
-    restart: unless-stopped
+  image: savonet/liquidsoap:v2.3.1
+  container_name: radio_liquidsoap
+  depends_on:
+    - icecast
+  environment:
+    - STATION_MOUNT=${STATION_MOUNT:-/stream}
+    - STATION_NAME=${STATION_NAME:-My Radio}
+    - OUTPUT_BITRATE=${OUTPUT_BITRATE:-128}
+    - ICECAST_HOST=icecast
+    - ICECAST_PORT=8000
+    - ICECAST_PASSWORD=${ICECAST_SOURCE_PASSWORD}
+    - LIQ_TELNET_PORT=1234
+  command: ["liquidsoap","/config/radio.liq"]   # <-- point to file in the mounted folder
+  volumes:
+    - ./liquidsoap:/config:ro                   # <-- mount the folder that contains radio.liq
+    - ./music:/music:ro
+  restart: unless-stopped
+
 
   queue-api:
     build: ./queue-api
