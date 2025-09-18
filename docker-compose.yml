@@ -1,37 +1,49 @@
 services:
   icecast:
-    image: icecast:2.4.4
-    container_name: radio-icecast
+    image: libretime/icecast:2.4.4
+    container_name: radio_icecast
+    environment:
+      - ICECAST_SOURCE_PASSWORD=${ICECAST_SOURCE_PASSWORD}
+      - ICECAST_RELAY_PASSWORD=${ICECAST_RELAY_PASSWORD:-relaypass}
+      - ICECAST_ADMIN_USER=${ICECAST_ADMIN_USER:-admin}
+      - ICECAST_ADMIN_PASSWORD=${ICECAST_ADMIN_PASSWORD}
+      - ICECAST_HOSTNAME=${ICECAST_HOSTNAME:-0.0.0.0}
     volumes:
-      - ./config/icecast.xml:/etc/icecast2/icecast.xml:ro
+      - ./icecast.xml:/etc/icecast2/icecast.xml:ro
     ports:
-      - "8000:8000"         # public stream
+      - "8000:8000"
     restart: unless-stopped
 
   liquidsoap:
-    image: savonet/liquidsoap:2.2.6
-    container_name: radio-liquidsoap
+    image: savonet/liquidsoap:v2.3.1
+    container_name: radio_liquidsoap
     depends_on:
       - icecast
+    environment:
+      - STATION_MOUNT=${STATION_MOUNT:-/stream}
+      - STATION_NAME=${STATION_NAME:-My Radio}
+      - OUTPUT_BITRATE=${OUTPUT_BITRATE:-128}
+      - ICECAST_HOST=icecast
+      - ICECAST_PORT=8000
+      - ICECAST_PASSWORD=${ICECAST_SOURCE_PASSWORD}
+      - LIQ_TELNET_PORT=1234
+    command: ["liquidsoap","/radio.liq"]
     volumes:
-      - ./liquidsoap/radio.liq:/radio.liq:ro
-      - ./music:/music:ro   # read-only; managed by you
-    command: ["liquidsoap", "/radio.liq"]
+      - ./radio.liq:/radio.liq:ro
+      - ./music:/music:ro
     restart: unless-stopped
 
-  web:
-    build: ./web
-    container_name: radio-web
+  queue-api:
+    build: ./queue-api
+    container_name: radio_queue_api
     depends_on:
       - liquidsoap
     environment:
-      # Liquidsoap telnet inside the docker network:
       - LIQ_HOST=liquidsoap
       - LIQ_PORT=1234
-      # Where the music lives (inside containers)
-      - MUSIC_DIR=/music
-    volumes:
-      - ./music:/music:ro
+      - PORT=${QUEUE_PORT:-8080}
+      # If you need yt-dlp cookies later, mount a file inside this container and point to it:
+      # - YTDLP_COOKIES=/cookies/cookies.txt
     ports:
-      - "8080:8080"         # simple web UI
+      - "${QUEUE_PORT:-8080}:8080"
     restart: unless-stopped
