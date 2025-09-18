@@ -33,7 +33,7 @@ services:
       - ./music:/music:ro
     restart: unless-stopped
 
-    queue-api:
+  queue-api:
     build: ./queue-api
     container_name: radio_queue_api
     depends_on:
@@ -45,4 +45,3 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
-
