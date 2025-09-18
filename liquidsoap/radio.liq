@@ -16,5 +16,5 @@ output.icecast(
   password="N8f4bK2p9xQh7rV6sYw3Tu1c",
   mount="/stream",
   name="My Dockploy Radio",
-  s
+  stream
 )
